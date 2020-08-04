@@ -1,3 +1,4 @@
+<?php require('dbconnect.php'); ?>
 <!doctype html>
 <html lang="ja">
 <head>
@@ -16,14 +17,17 @@
 </header>
 
 <main>
-<h2>掲示板</h2>
+<h2>メモ一覧</h2>
 <?php
-try {
-    $db = new PDO('mysql:dbname=mydb; host=127.0.0.1; port=8889; charset=utf8', 'root', 'root');
-} catch(PDOException $e) {
-    echo 'DB接続エラー： ' . $e -> getMessage();
+if (isset($_REQUEST['page']) && is_numeric($_REQUEST['page'])) {
+$page = $_REQUEST['page'];
+} else {
+    $page = 1;
 }
-$memos = $db->query('SELECT * FROM memos ORDER BY id DESC');
+$start = 5 * ($page - 1);
+$memos = $db->prepare('SELECT * FROM memos ORDER BY id LIMIT ?,5');
+$memos->bindParam(1, $_REQUEST['page'], PDO::PARAM_INT);
+$memos->execute();
 ?>
 <article>
     <?php while ( $memo = $memos->fetch()): ?>
@@ -36,6 +40,19 @@ $memos = $db->query('SELECT * FROM memos ORDER BY id DESC');
         <time><?php print($memo['created_at']); ?></time>
         <hr>
     <?php endwhile; ?>
+
+<?php if ($page >= 2): ?>
+    <a href="index.php?page=<?php print($page-1); ?>"><?php print($page-1); ?>ページ目へ</a>
+<?php endif; ?>
+|
+<?php
+$counts = $db->query('SELECT COUNT(*) AS cnt FROM memos');
+$count = $counts->fetch();
+$max_page = ceil($count['cnt'] /5);
+if($page < $max_page):
+?>
+    <a href="index.php?page=<?php print($page+1); ?>"><?php print($page+1); ?>ページ目へ</a>
+<?php endif; ?>
 </article>
 </main>
 </body>    
