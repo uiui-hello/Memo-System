@@ -9,15 +9,15 @@
 </head>
 
 <body>
+
     <main>
         <h2>メモ管理システム(PHP)</h2>
-        <pre>
         <?php
-        $statement = $db->prepare('INSERT INTO memos SET memo=?, created_at=NOW()');
-        $statement->execute(array($_POST['memo']));
-        echo 'メモが登録されました';
+        $statment = $db->prepare('UPDATE memos SET memo=? WHERE id=?');
+        $statment->execute(array($_POST['memo'], $_POST['id']));
         ?>
-    </pre>
+        <pre><p>メモの内容を変更しました</p></pre>
+        <p><a href="index.php">戻る</a></p>
     </main>
 </body>
 </html>
